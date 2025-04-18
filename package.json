@@ -1,0 +1,20 @@
+{
+    "name": "task-manager-app",
+    "version": "1.0.0",
+    "description": "A simple task manager application",
+    "main": "index.js",
+    "scripts": {
+      "install": "npm run install-backend && npm run install-frontend",
+      "install-backend": "cd backend && npm install",
+      "install-frontend": "cd frontend && npm install",
+      "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+      "start-backend": "cd backend && node server.js",
+      "start-frontend": "cd frontend && npm run serve"
+    },
+    "keywords": ["task", "manager", "vue", "node"],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "concurrently": "^6.2.0"
+    }
+  }
