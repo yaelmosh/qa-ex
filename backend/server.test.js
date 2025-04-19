@@ -15,7 +15,29 @@ async function fetchApi(url, method = 'GET', body = null, shouldParseResponse = 
     }
 }
 
+async function deleteAllTasks() {
+    const tasks = await fetchApi('/api/tasks');
+
+    for (const task of tasks) {
+        await fetchApi(`/api/tasks/${task.id}`, 'DELETE', null, false);
+    }
+}
+
 describe('api', () => {
+    let originalTasks;
+
+    beforeAll(async () => {
+        originalTasks = await fetchApi('/api/tasks');
+        await deleteAllTasks();
+    })
+
+    afterAll(async () => {
+        await deleteAllTasks();
+        for (const task of originalTasks) {
+            await fetchApi(`/api/tasks`, 'POST', task)
+        }
+    })
+
     test('should create new task', async () => {
         const newTask = {
             title: 'new task',
