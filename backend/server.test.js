@@ -63,5 +63,36 @@ describe('api', () => {
         expect(updatedTask.dueDate).toEqual(newTask.dueDate);
     })
 
+    test('should delete only 1 task per request', async () => {
+        const newTask1 = {
+            title: 'task number 1',
+            description: 'this task will be deleted',
+            priority: 'low',
+            dueDate: '2029-04-01',
+        }
+        const newTask2 = {
+            title: 'task number 2',
+            description: 'this task will be deleted',
+            priority: 'medium',
+            dueDate: '2030-04-01',
+        }
+        const newTask3 = {
+            title: 'task number 3',
+            description: 'this task should not be deleted!',
+            priority: 'high',
+            dueDate: '2031-04-01',
+        }
+
+        const {id: id1} = await fetchApi('/api/tasks', 'POST', newTask1);
+        const {id: id2} = await fetchApi('/api/tasks', 'POST', newTask2);
+        await fetchApi(`/api/tasks/${id1}`, 'DELETE', null, false);
+        const allTasksBeforeDeletion = await fetchApi('/api/tasks');
+        await fetchApi('/api/tasks', 'POST', newTask3);
+        // expecting to see bug - will be deleting tasks 2 and 3 instead of only task 2
+        // this happens because creating new task generates id by task amount, leading to duplicates
+        await fetchApi(`/api/tasks/${id2}`, 'DELETE', null, false);
+        const allTasksAfterDeletion = await fetchApi('/api/tasks');
+
+        expect(allTasksBeforeDeletion.length - 1).toEqual(allTasksAfterDeletion.length);
     })
 });
